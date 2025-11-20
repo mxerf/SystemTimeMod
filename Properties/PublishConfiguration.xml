@@ -27,11 +27,7 @@ Enjoy! 🏙️
     <!--Screenshot, can be set multiple times-->
     <Screenshot Value="Properties/Screenshots/screenshot1.png" />
     <!--Tag, can be set multiple times-->
-    <Tag Value="UI" />
-    <Tag Value="HUD" />
-    <Tag Value="Interface" />
-    <Tag Value="Quality of Life" />
-    <Tag Value="Clock" />
+    <Tag Value="Code Mod" />
     <!--Link to the forum post where the mod can be discussed-->
     <ForumLink Value="" />
     <!--Version of the mod-->
