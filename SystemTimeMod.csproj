@@ -70,4 +70,19 @@
         <None Include="$(ModTargetsFile)" Link="Properties\Mod.targets"/>
     </ItemGroup>
 
+    <!-- Build UI before compilation -->
+    <Target Name="BuildUI" BeforeTargets="BeforeBuild">
+        <Message Text="Building UI..." Importance="high"/>
+        <Exec Command="bun install" WorkingDirectory="$(MSBuildProjectDirectory)\UI" Condition="!Exists('$(MSBuildProjectDirectory)\UI\node_modules')"/>
+        <Exec Command="bun run build" WorkingDirectory="$(MSBuildProjectDirectory)\UI"/>
+    </Target>
+
+    <!-- Include UI dist files in mod output -->
+    <ItemGroup>
+        <Content Include="dist\ui\**\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>dist\ui\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </Content>
+    </ItemGroup>
+
 </Project>
