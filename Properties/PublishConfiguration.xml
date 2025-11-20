@@ -26,6 +26,7 @@ Enjoy! 🏙️
     <Thumbnail Value="Properties/Thumbnail.png" />
     <!--Screenshot, can be set multiple times-->
     <Screenshot Value="Properties/Screenshots/screenshot1.png" />
+    <Screenshot Value="Properties/Screenshots/screenshot2.png" />
     <!--Tag, can be set multiple times-->
     <Tag Value="Code Mod" />
     <!--Link to the forum post where the mod can be discussed-->
