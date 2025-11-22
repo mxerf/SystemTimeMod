@@ -6,7 +6,6 @@ export interface ModSettings {
   showSeconds: boolean
   showDate: boolean
   widgetSize: number
-  widgetPosition: number
   customPositionX: number
   customPositionY: number
   useCustomPosition: boolean
@@ -67,7 +66,6 @@ export const useModSettings = (): ModSettings | null => {
           showSeconds: true,
           showDate: true,
           widgetSize: 1,
-          widgetPosition: 0,
           customPositionX: 0,
           customPositionY: 0,
           useCustomPosition: false,

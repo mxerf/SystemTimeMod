@@ -81,7 +81,6 @@ namespace SystemTimeMod
                     ""showSeconds"": {Mod.Settings.ShowSeconds.ToString().ToLower()},
                     ""showDate"": {Mod.Settings.ShowDate.ToString().ToLower()},
                     ""widgetSize"": {Mod.Settings.WidgetSize},
-                    ""widgetPosition"": {Mod.Settings.WidgetPosition},
                     ""customPositionX"": {Mod.Settings.CustomPositionX},
                     ""customPositionY"": {Mod.Settings.CustomPositionY},
                     ""useCustomPosition"": {Mod.Settings.UseCustomPosition.ToString().ToLower()}

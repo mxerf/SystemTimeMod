@@ -36,9 +36,6 @@ namespace SystemTimeMod.Settings
             writer.PropertyName("widgetSize");
             writer.Write(_settings.WidgetSize);
             
-            writer.PropertyName("widgetPosition");
-            writer.Write(_settings.WidgetPosition);
-            
             writer.PropertyName("customPositionX");
             writer.Write(_settings.CustomPositionX);
             

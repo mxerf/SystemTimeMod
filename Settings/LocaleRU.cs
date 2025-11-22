@@ -37,10 +37,11 @@ namespace SystemTimeMod.Settings
                 { _settings.GetOptionDescLocaleID(nameof(ModSettings.ShowDate)), "Отображать дату при наведении на виджет" },
                 
                 { _settings.GetOptionLabelLocaleID(nameof(ModSettings.WidgetSize)), "Размер виджета" },
-                { _settings.GetOptionDescLocaleID(nameof(ModSettings.WidgetSize)), "Размер виджета времени (0=Маленький, 1=Средний, 2=Большой)" },
-                
-                { _settings.GetOptionLabelLocaleID(nameof(ModSettings.WidgetPosition)), "Позиция виджета" },
-                { _settings.GetOptionDescLocaleID(nameof(ModSettings.WidgetPosition)), "Начальная позиция виджета (0=Верх справа, 1=Верх слева, 2=Низ справа, 3=Низ слева)" },
+                { _settings.GetOptionDescLocaleID(nameof(ModSettings.WidgetSize)), "Размер виджета времени" },
+
+                { "SystemTimeMod_Size_Small", "Маленький" },
+                { "SystemTimeMod_Size_Medium", "Средний" },
+                { "SystemTimeMod_Size_Large", "Большой" },
             };
         }
 

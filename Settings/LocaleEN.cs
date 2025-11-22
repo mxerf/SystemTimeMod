@@ -37,10 +37,11 @@ namespace SystemTimeMod.Settings
                 { _settings.GetOptionDescLocaleID(nameof(ModSettings.ShowDate)), "Display date when hovering over the widget" },
                 
                 { _settings.GetOptionLabelLocaleID(nameof(ModSettings.WidgetSize)), "Widget Size" },
-                { _settings.GetOptionDescLocaleID(nameof(ModSettings.WidgetSize)), "Size of the time widget (0=Small, 1=Medium, 2=Large)" },
-                
-                { _settings.GetOptionLabelLocaleID(nameof(ModSettings.WidgetPosition)), "Widget Position" },
-                { _settings.GetOptionDescLocaleID(nameof(ModSettings.WidgetPosition)), "Default position of the widget (0=TopRight, 1=TopLeft, 2=BottomRight, 3=BottomLeft)" },
+                { _settings.GetOptionDescLocaleID(nameof(ModSettings.WidgetSize)), "Size of the time widget" },
+
+                { "SystemTimeMod_Size_Small", "Small" },
+                { "SystemTimeMod_Size_Medium", "Medium" },
+                { "SystemTimeMod_Size_Large", "Large" }
             };
         }
 

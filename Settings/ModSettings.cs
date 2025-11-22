@@ -1,6 +1,7 @@
 using Colossal.IO.AssetDatabase;
 using Game.Modding;
 using Game.Settings;
+using Game.UI.Widgets;
 
 namespace SystemTimeMod.Settings
 {
@@ -44,15 +45,8 @@ namespace SystemTimeMod.Settings
         /// Размер виджета: 0 = маленький, 1 = средний, 2 = большой
         /// </summary>
         [SettingsUISection("Appearance")]
-        [SettingsUISlider(min = 0, max = 2, step = 1)]
+        [SettingsUIDropdown(typeof(ModSettings), nameof(GetSizeValues))]
         public int WidgetSize { get; set; }
-
-        /// <summary>
-        /// Позиция виджета: 0 = TopRight, 1 = TopLeft, 2 = BottomRight, 3 = BottomLeft
-        /// </summary>
-        [SettingsUISection("Appearance")]
-        [SettingsUISlider(min = 0, max = 3, step = 1)]
-        public int WidgetPosition { get; set; }
 
         /// <summary>
         /// Сохранённая позиция X для перетаскивания
@@ -79,7 +73,6 @@ namespace SystemTimeMod.Settings
             ShowSeconds = true;
             ShowDate = true;
             WidgetSize = 1; // Средний размер
-            WidgetPosition = 0; // Верхний правый угол
             CustomPositionX = 0;
             CustomPositionY = 0;
             UseCustomPosition = false;
@@ -101,6 +94,28 @@ namespace SystemTimeMod.Settings
             {
                 Mod.log.Error($"Error applying settings: {e.Message}");
             }
+        }
+
+        public static DropdownItem<int>[] GetSizeValues()
+        {
+            DropdownItem<int>[] list = [
+                new DropdownItem<int>
+                {
+                    value = 0,
+                    displayName = "SystemTimeMod_Size_Small"
+                },
+                new DropdownItem<int>
+                {
+                    value = 1,
+                    displayName = "SystemTimeMod_Size_Medium"
+                },
+                new DropdownItem<int>
+                {
+                    value = 2,
+                    displayName = "SystemTimeMod_Size_Large"
+                }
+            ];
+            return list;
         }
     }
 }

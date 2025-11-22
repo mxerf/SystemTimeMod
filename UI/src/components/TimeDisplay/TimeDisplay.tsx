@@ -4,6 +4,71 @@ import { Clock, Calendar, Wifi, Move } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ModSettings } from '../../hooks/useModSettings'
 
+// Размеры виджета
+const WIDGET_SIZES = {
+  small: {
+    padding: '12px 16px',
+    iconSize: 32,
+    iconWrapperSize: 32,
+    fontSize: '20px',
+    dotSize: 6,
+    expandedFontSize: '12px',
+    borderRadius: '16px',
+    dotsMargin: '2px',
+    timeMargin: '12px'
+  },
+  medium: {
+    padding: '16px 24px',
+    iconSize: 40,
+    iconWrapperSize: 40,
+    fontSize: '28px',
+    dotSize: 8,
+    expandedFontSize: '14px',
+    borderRadius: '16px',
+    dotsMargin: '4px',
+    timeMargin: '16px'
+  },
+  large: {
+    padding: '20px 32px',
+    iconSize: 48,
+    iconWrapperSize: 48,
+    fontSize: '36px',
+    dotSize: 10,
+    expandedFontSize: '16px',
+    borderRadius: '20px',
+    dotsMargin: '4px',
+    timeMargin: '16px'
+  },
+} as const
+
+type WidgetSizeName = 'small' | 'medium' | 'large'
+type WidgetSizeConfig = typeof WIDGET_SIZES[WidgetSizeName]
+
+function getWidgetSize(sizeIndex: number): WidgetSizeConfig {
+  const sizes: WidgetSizeName[] = ['small', 'medium', 'large']
+  const sizeName = sizes[sizeIndex] || 'medium'
+  return WIDGET_SIZES[sizeName]
+}
+
+// Функция для форматирования даты вручную
+function formatDate(date: Date, locale: string): string {
+  const months = locale === 'ru-RU' ? [
+    'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+    'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+  ] : [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ]
+
+  const day = date.getDate()
+  const month = months[date.getMonth()]
+  const year = date.getFullYear()
+
+  return locale === 'ru-RU'
+    ? `${day} ${month} ${year}`
+    : `${month} ${day}, ${year}`
+}
+
 interface TimeDisplayProps {
   settings: ModSettings | null
 }
@@ -44,11 +109,7 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
 
       // Получаем язык для форматирования даты
       const locale = settings?.language || 'ru-RU'
-      const dateString = now.toLocaleDateString(locale === 'en' ? 'en-US' : 'ru-RU', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      })
+      const dateString = formatDate(now, locale === 'en' ? 'en-US' : 'ru-RU')
 
       setTime({ hours: hoursStr, minutes, seconds })
       setDate(dateString)
@@ -78,7 +139,11 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
     }
 
     const handleMouseUp = () => {
-      setIsDragging(false)
+      if (isDragging) {
+        setIsDragging(false)
+        // Сохраняем позицию в настройках
+        savePosition(position.x, position.y)
+      }
     }
 
     if (isDragging) {
@@ -89,7 +154,28 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
         document.removeEventListener('mouseup', handleMouseUp)
       }
     }
-  }, [isDragging, dragStart])
+  }, [isDragging, dragStart, position])
+
+  // Функция для сохранения позиции в C# настройки
+  const savePosition = (x: number, y: number) => {
+    try {
+      // Обновляем данные в глобальном объекте
+      if (window.__SYSTEM_TIME_MOD_DATA__?.settings) {
+        window.__SYSTEM_TIME_MOD_DATA__.settings.customPositionX = x
+        window.__SYSTEM_TIME_MOD_DATA__.settings.customPositionY = y
+        window.__SYSTEM_TIME_MOD_DATA__.settings.useCustomPosition = true
+        console.log('Position saved:', { x, y })
+
+        // TODO: Здесь нужно вызвать C# метод для сохранения настроек
+        // Это потребует дополнительного биндинга
+      }
+    } catch (error) {
+      console.error('Error saving position:', error)
+    }
+  }
+
+  // Получаем текущий размер виджета
+  const widgetSize = getWidgetSize(settings?.widgetSize ?? 1)
 
   return (
     <>
@@ -129,10 +215,10 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
             backdropFilter: 'blur(24px)',
             background: 'linear-gradient(135deg, rgba(26, 31, 46, 0.8) 0%, rgba(26, 31, 46, 0.6) 100%)',
             border: isDragging ? '1px solid rgba(74, 158, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '16px',
+            borderRadius: widgetSize.borderRadius,
             boxShadow: isDragging ? '0 12px 48px rgba(0, 0, 0, 0.6)' : '0 8px 32px rgba(0, 0, 0, 0.4)',
             overflow: 'hidden',
-            transition: 'box-shadow 0.3s ease, border-color 0.3s ease',
+            transition: 'all 0.3s ease',
           }}
         >
           {/* Светящаяся линия сверху */}
@@ -176,7 +262,7 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
             )}
           </AnimatePresence>
 
-          <div style={{ padding: '16px 24px' }}>
+          <div style={{ padding: widgetSize.padding }}>
             {/* Заголовок с временем */}
             <div style={{ display: 'flex', alignItems: 'center' }}>
               {/* Иконка часов с вращением */}
@@ -187,8 +273,8 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: '40px',
-                  height: '40px',
+                  width: `${widgetSize.iconWrapperSize}px`,
+                  height: `${widgetSize.iconWrapperSize}px`,
                   borderRadius: '50%',
                   background: 'linear-gradient(135deg, rgba(74, 158, 255, 0.3) 0%, rgba(74, 158, 255, 0.1) 100%)',
                   border: '1px solid rgba(74, 158, 255, 0.3)',
@@ -196,20 +282,20 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
                   flexShrink: 0,
                 }}
               >
-                <Clock size={20} stroke="#6BB6FF" />
+                <Clock size={widgetSize.iconSize * 0.5} stroke="#6BB6FF" />
               </motion.div>
 
               {/* Цифры времени */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                marginLeft: '16px',
-                marginRight: '16px',
+                marginLeft: widgetSize.timeMargin,
+                marginRight: widgetSize.timeMargin,
               }}>
                 <span style={{
                   color: 'white',
                   fontFamily: "'Consolas', 'Monaco', monospace",
-                  fontSize: '28px',
+                  fontSize: widgetSize.fontSize,
                   fontWeight: 'bold',
                   lineHeight: 1,
                 }}>
@@ -217,18 +303,18 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
                 </span>
                 <span style={{
                   color: 'rgba(74, 158, 255, 0.6)',
-                  fontSize: '28px',
+                  fontSize: widgetSize.fontSize,
                   fontWeight: 'bold',
                   lineHeight: 1,
-                  marginLeft: '4px',
-                  marginRight: '4px',
+                  marginLeft: widgetSize.dotsMargin,
+                  marginRight: widgetSize.dotsMargin,
                 }}>
                   :
                 </span>
                 <span style={{
                   color: 'white',
                   fontFamily: "'Consolas', 'Monaco', monospace",
-                  fontSize: '28px',
+                  fontSize: widgetSize.fontSize,
                   fontWeight: 'bold',
                   lineHeight: 1,
                 }}>
@@ -237,11 +323,11 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
                 {(settings?.showSeconds ?? true) && (
                   <span style={{
                     color: 'rgba(74, 158, 255, 0.6)',
-                    fontSize: '28px',
+                    fontSize: widgetSize.fontSize,
                     fontWeight: 'bold',
                     lineHeight: 1,
-                    marginLeft: '4px',
-                    marginRight: '4px',
+                    marginLeft: widgetSize.dotsMargin,
+                    marginRight: widgetSize.dotsMargin,
                   }}>
                     :
                   </span>
@@ -250,7 +336,7 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
                   <span style={{
                     color: 'white',
                     fontFamily: "'Consolas', 'Monaco', monospace",
-                    fontSize: '28px',
+                    fontSize: widgetSize.fontSize,
                     fontWeight: 'bold',
                     lineHeight: 1,
                   }}>
@@ -267,12 +353,12 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
               >
                 <div style={{
                   position: 'relative',
-                  width: '8px',
-                  height: '8px',
+                  width: `${widgetSize.dotSize}px`,
+                  height: `${widgetSize.dotSize}px`,
                 }}>
                   <div style={{
-                    width: '8px',
-                    height: '8px',
+                    width: `${widgetSize.dotSize}px`,
+                    height: `${widgetSize.dotSize}px`,
                     borderRadius: '50%',
                     backgroundColor: '#4ade80',
                   }} />
@@ -280,8 +366,8 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
                     position: 'absolute',
                     top: 0,
                     left: 0,
-                    width: '8px',
-                    height: '8px',
+                    width: `${widgetSize.dotSize}px`,
+                    height: `${widgetSize.dotSize}px`,
                     borderRadius: '50%',
                     backgroundColor: '#4ade80',
                     animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
@@ -314,7 +400,7 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
                     display: 'flex',
                     alignItems: 'center',
                     color: 'rgba(255, 255, 255, 0.7)',
-                    fontSize: '14px',
+                    fontSize: widgetSize.expandedFontSize,
                   }}>
                     <div style={{
                       color: '#6BB6FF',
@@ -338,7 +424,7 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    fontSize: '12px',
+                    fontSize: `calc(${widgetSize.expandedFontSize} * 0.85)`,
                   }}>
                     <div style={{
                       display: 'flex',
