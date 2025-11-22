@@ -1,0 +1,51 @@
+{
+  "widget": {
+    "systemTime": "System Time",
+    "live": "LIVE",
+    "version": "SystemTimeMod v{{version}}"
+  },
+  "settings": {
+    "title": "Time Widget Settings",
+    "language": "Language",
+    "timeFormat": "Time Format",
+    "timeFormat12": "12-hour",
+    "timeFormat24": "24-hour",
+    "widgetSize": "Widget Size",
+    "sizeSmall": "Small",
+    "sizeMedium": "Medium",
+    "sizeLarge": "Large",
+    "position": "Position",
+    "positionTopLeft": "Top Left",
+    "positionTopRight": "Top Right",
+    "positionBottomLeft": "Bottom Left",
+    "positionBottomRight": "Bottom Right",
+    "showSeconds": "Show Seconds",
+    "showDate": "Show Date",
+    "save": "Save",
+    "cancel": "Cancel",
+    "reset": "Reset to Defaults"
+  },
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  }
+}
