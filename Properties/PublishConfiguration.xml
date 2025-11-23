@@ -40,9 +40,20 @@ Enjoy! 🏙️
     <!--Required DLC, can be set multiple times-->
     <RequiredDLC Value="" />
     <!--Change log for new version-->
-    <ChangeLog Value="Initial release - System time widget with drag-to-move, smooth animations, and glassmorphic design" />
+    <ChangeLog>
+- Settings:
+  - Language selector dropdown (Auto/English/Russian)
+  - Time format selection (12/24 hour)
+  - Show/hide seconds
+  - Show/hide date
+  - Three widget sizes (small, medium, large)
+  - Version and build number display in "About" section
+- Widget dragging with position persistence
+- Localization support (Russian and English)
+- Adaptation to game language
+    </ChangeLog>
     <!--External link, can be set multiple times-->
-    <ExternalLink Type="" Url="" />
+    <ExternalLink Type="github" Url="https://github.com/mxerf/SystemTimeMod" />
     <!--Supported values Public, Private, Unlisted-->
     <AccessLevel Value="Public" />
 </Publish>
