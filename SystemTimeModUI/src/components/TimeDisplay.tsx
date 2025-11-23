@@ -109,7 +109,7 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
         hoursStr = String(hours).padStart(2, '0')
       }
 
-      const locale = language || 'en-US'
+      const locale = settings.language || language || 'en-US'
       const dateString = formatDate(now, locale ?? 'en-US')
 
       setTime({ hours: hoursStr, minutes, seconds })

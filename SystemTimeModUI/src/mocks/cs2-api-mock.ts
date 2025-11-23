@@ -8,7 +8,7 @@ export const bindValue = (module: string, method: string, defaultValue: any) => 
   if (module === 'SystemTimeMod' && method === 'GetSettings') {
     return {
       value: JSON.stringify({
-        language: 'ru-RU',
+        language: '', // '' = Auto, 'en-US' = English, 'ru-RU' = Russian
         use24HourFormat: true,
         showSeconds: true,
         showDate: true,
@@ -21,8 +21,9 @@ export const bindValue = (module: string, method: string, defaultValue: any) => 
         // Имитируем изменение настроек каждые 10 секунд для теста
         const interval = setInterval(() => {
           if (listener) {
+            const languages = ['', 'en-US', 'ru-RU'];
             listener(JSON.stringify({
-              language: 'ru-RU',
+              language: languages[Math.floor(Math.random() * languages.length)],
               use24HourFormat: Math.random() > 0.5,
               showSeconds: Math.random() > 0.5,
               showDate: true,

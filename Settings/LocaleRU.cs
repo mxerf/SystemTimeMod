@@ -25,8 +25,8 @@ namespace SystemTimeMod.Settings
                 { _settings.GetOptionTabLocaleID("Appearance"), "Внешний вид" },
                 { _settings.GetOptionTabLocaleID("About"), "О моде" },
                 
-                { _settings.GetOptionLabelLocaleID(nameof(ModSettings.Language)), "Язык" },
-                { _settings.GetOptionDescLocaleID(nameof(ModSettings.Language)), "Выберите язык интерфейса (пусто = использовать язык игры)" },
+                { _settings.GetOptionLabelLocaleID(nameof(ModSettings.LanguagePreference)), "Язык" },
+                { _settings.GetOptionDescLocaleID(nameof(ModSettings.LanguagePreference)), "Выберите язык интерфейса мода" },
                 
                 { _settings.GetOptionLabelLocaleID(nameof(ModSettings.Use24HourFormat)), "24-часовой формат" },
                 { _settings.GetOptionDescLocaleID(nameof(ModSettings.Use24HourFormat)), "Использовать 24-часовой формат времени вместо 12-часового" },
@@ -46,6 +46,10 @@ namespace SystemTimeMod.Settings
                 { _settings.GetOptionLabelLocaleID(nameof(ModSettings.BuildNumber)), "Номер сборки" },
                 { _settings.GetOptionDescLocaleID(nameof(ModSettings.BuildNumber)), "Текущий номер сборки (автоинкремент)" },
 
+                { "SystemTimeMod_Language_Auto", "Авто (язык игры)" },
+                { "SystemTimeMod_Language_English", "English" },
+                { "SystemTimeMod_Language_Russian", "Русский" },
+                
                 { "SystemTimeMod_Size_Small", "Маленький" },
                 { "SystemTimeMod_Size_Medium", "Средний" },
                 { "SystemTimeMod_Size_Large", "Большой" },

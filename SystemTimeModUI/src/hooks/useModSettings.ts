@@ -32,7 +32,7 @@ export const useModSettings = (): ModSettings => {
     try {
       if (settingsJson && settingsJson !== '{}') {
         const parsed = JSON.parse(settingsJson)
-        console.log('SystemTimeMod: Settings received from C#:', parsed)
+        console.log('SystemTimeMod: Settings received from C#:', settingsJson)
         setSettings(parsed)
       }
     } catch (error) {

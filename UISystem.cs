@@ -118,7 +118,7 @@ namespace SystemTimeMod
             {
                 // Ручная сериализация в JSON
                 var json = $@"{{
-                    ""language"": ""{Mod.Settings.Language ?? ""}"",
+                    ""language"": ""{Mod.Settings.LanguagePreference ?? ""}"",
                     ""use24HourFormat"": {Mod.Settings.Use24HourFormat.ToString().ToLower()},
                     ""showSeconds"": {Mod.Settings.ShowSeconds.ToString().ToLower()},
                     ""showDate"": {Mod.Settings.ShowDate.ToString().ToLower()},

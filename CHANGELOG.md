@@ -6,10 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [1.1.0] - 2025-11-23
 ### Added
 - Settings:
+  - Language selector dropdown (Auto/English/Russian)
   - Time format selection (12/24 hour)
   - Show/hide seconds
   - Show/hide date
   - Three widget sizes (small, medium, large)
+  - Version and build number display in "About" section
 - Widget dragging with position persistence
 - Localization support (Russian and English)
 - Adaptation to game language

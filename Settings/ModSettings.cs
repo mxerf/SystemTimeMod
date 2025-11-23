@@ -17,11 +17,11 @@ namespace SystemTimeMod.Settings
         }
 
         /// <summary>
-        /// Язык интерфейса (en, ru, и т.д.)
-        /// Если null или empty, используется язык игры
+        /// Язык интерфейса: "" = Auto (язык игры), "en-US" = English, "ru-RU" = Russian
         /// </summary>
         [SettingsUISection("General")]
-        public string Language { get; set; }
+        [SettingsUIDropdown(typeof(ModSettings), nameof(GetLanguageValues))]
+        public string LanguagePreference { get; set; }
 
         /// <summary>
         /// Формат времени: true = 24-часовой, false = 12-часовой
@@ -85,7 +85,7 @@ namespace SystemTimeMod.Settings
 
         public override void SetDefaults()
         {
-            Language = ""; // Пустая строка = использовать язык игры
+            LanguagePreference = ""; // Auto - использовать язык игры
             Use24HourFormat = true;
             ShowSeconds = true;
             ShowDate = true;
@@ -99,6 +99,28 @@ namespace SystemTimeMod.Settings
         {
             base.Apply();
             // Биндинги обновляются автоматически в UISystem.OnUpdate()
+        }
+
+        public static DropdownItem<string>[] GetLanguageValues()
+        {
+            DropdownItem<string>[] list = [
+                new DropdownItem<string>
+                {
+                    value = "",
+                    displayName = "SystemTimeMod_Language_Auto"
+                },
+                new DropdownItem<string>
+                {
+                    value = "en-US",
+                    displayName = "SystemTimeMod_Language_English"
+                },
+                new DropdownItem<string>
+                {
+                    value = "ru-RU",
+                    displayName = "SystemTimeMod_Language_Russian"
+                }
+            ];
+            return list;
         }
 
         public static DropdownItem<int>[] GetSizeValues()

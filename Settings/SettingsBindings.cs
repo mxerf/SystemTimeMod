@@ -22,7 +22,7 @@ namespace SystemTimeMod.Settings
             
             // Передаём все настройки в JavaScript
             writer.PropertyName("language");
-            writer.Write(_settings.Language ?? "");
+            writer.Write(_settings.LanguagePreference ?? "");
             
             writer.PropertyName("use24HourFormat");
             writer.Write(_settings.Use24HourFormat);

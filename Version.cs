@@ -6,7 +6,7 @@ namespace SystemTimeMod
     public static class ModVersion
     {
         public const string Version = "1.1.0";
-        public const int BuildNumber = 4;
-        public const string FullVersion = "1.1.0-build.4";
+        public const int BuildNumber = 10;
+        public const string FullVersion = "1.1.0-build.10";
     }
 }
