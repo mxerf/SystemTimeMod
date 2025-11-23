@@ -11,6 +11,10 @@
     <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props"/>
     <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets"/>
 
+    <PropertyGroup>
+        <LangVersion>12.0</LangVersion>
+    </PropertyGroup>
+
     <ItemGroup>
         <Reference Include="cohtml.Net">
           <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities Skylines II\Cities2_Data\Managed\cohtml.Net.dll</HintPath>
@@ -31,6 +35,9 @@
             <Private>false</Private>
         </Reference>
         <Reference Include="Colossal.IO.AssetDatabase">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Colossal.Localization">
             <Private>false</Private>
         </Reference>
         <Reference Include="UnityEngine.CoreModule">
@@ -70,19 +77,24 @@
         <None Include="$(ModTargetsFile)" Link="Properties\Mod.targets"/>
     </ItemGroup>
 
-    <!-- Build UI before compilation -->
-    <Target Name="BuildUI" BeforeTargets="BeforeBuild">
-        <Message Text="Building UI..." Importance="high"/>
-        <Exec Command="bun install" WorkingDirectory="$(MSBuildProjectDirectory)\UI" Condition="!Exists('$(MSBuildProjectDirectory)\UI\node_modules')"/>
-        <Exec Command="bun run build" WorkingDirectory="$(MSBuildProjectDirectory)\UI"/>
+    <!-- Increment build number before build -->
+    <Target Name="IncrementBuild" BeforeTargets="CoreCompile">
+        <Message Text="======================================" Importance="high"/>
+        <Message Text="Incrementing build number..." Importance="high"/>
+        <Message Text="======================================" Importance="high"/>
+        <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\IncrementBuild.ps1&quot;" WorkingDirectory="$(MSBuildProjectDirectory)"/>
     </Target>
 
-    <!-- Include UI dist files in mod output -->
-    <ItemGroup>
-        <Content Include="dist\ui\**\*">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>dist\ui\%(RecursiveDir)%(Filename)%(Extension)</Link>
-        </Content>
-    </ItemGroup>
+    <!-- Build UI after deploy -->
+    <Target Name="BuildUI" AfterTargets="Build">
+        <Message Text="======================================" Importance="high"/>
+        <Message Text="Building SystemTimeModUI (webpack)..." Importance="high"/>
+        <Message Text="======================================" Importance="high"/>
+        <Exec Command="npm install" WorkingDirectory="$(MSBuildProjectDirectory)\SystemTimeModUI" Condition="!Exists('$(MSBuildProjectDirectory)\SystemTimeModUI\node_modules')"/>
+        <Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)\SystemTimeModUI"/>
+        <Message Text="======================================" Importance="high"/>
+        <Message Text="UI Build Complete!" Importance="high"/>
+        <Message Text="======================================" Importance="high"/>
+    </Target>
 
 </Project>
