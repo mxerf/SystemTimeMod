@@ -66,6 +66,23 @@ namespace SystemTimeMod.Settings
         [SettingsUIHidden]
         public bool UseCustomPosition { get; set; }
 
+        /// <summary>
+        /// Информация о версии мода
+        /// </summary>
+        [SettingsUISection("About")]
+        [SettingsUIDisableByCondition(typeof(ModSettings), nameof(AlwaysDisabled))]
+        public string ModVersion => SystemTimeMod.ModVersion.FullVersion;
+        
+        /// <summary>
+        /// Номер сборки
+        /// </summary>
+        [SettingsUISection("About")]
+        [SettingsUIDisableByCondition(typeof(ModSettings), nameof(AlwaysDisabled))]
+        public int BuildNumber => SystemTimeMod.ModVersion.BuildNumber;
+        
+        // Вспомогательный метод для отключения полей
+        public bool AlwaysDisabled() => true;
+
         public override void SetDefaults()
         {
             Language = ""; // Пустая строка = использовать язык игры

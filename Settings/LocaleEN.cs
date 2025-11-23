@@ -23,6 +23,7 @@ namespace SystemTimeMod.Settings
                 { _settings.GetOptionTabLocaleID("General"), "General" },
                 { _settings.GetOptionTabLocaleID("Time"), "Time Display" },
                 { _settings.GetOptionTabLocaleID("Appearance"), "Appearance" },
+                { _settings.GetOptionTabLocaleID("About"), "About" },
                 
                 { _settings.GetOptionLabelLocaleID(nameof(ModSettings.Language)), "Language" },
                 { _settings.GetOptionDescLocaleID(nameof(ModSettings.Language)), "Select interface language (empty = use game language)" },
@@ -38,6 +39,12 @@ namespace SystemTimeMod.Settings
                 
                 { _settings.GetOptionLabelLocaleID(nameof(ModSettings.WidgetSize)), "Widget Size" },
                 { _settings.GetOptionDescLocaleID(nameof(ModSettings.WidgetSize)), "Size of the time widget" },
+
+                { _settings.GetOptionLabelLocaleID(nameof(ModSettings.ModVersion)), "Version" },
+                { _settings.GetOptionDescLocaleID(nameof(ModSettings.ModVersion)), "Current mod version" },
+                
+                { _settings.GetOptionLabelLocaleID(nameof(ModSettings.BuildNumber)), "Build Number" },
+                { _settings.GetOptionDescLocaleID(nameof(ModSettings.BuildNumber)), "Current build number (auto-incremented)" },
 
                 { "SystemTimeMod_Size_Small", "Small" },
                 { "SystemTimeMod_Size_Medium", "Medium" },

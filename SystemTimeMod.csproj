@@ -77,6 +77,14 @@
         <None Include="$(ModTargetsFile)" Link="Properties\Mod.targets"/>
     </ItemGroup>
 
+    <!-- Increment build number before build -->
+    <Target Name="IncrementBuild" BeforeTargets="CoreCompile">
+        <Message Text="======================================" Importance="high"/>
+        <Message Text="Incrementing build number..." Importance="high"/>
+        <Message Text="======================================" Importance="high"/>
+        <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\IncrementBuild.ps1&quot;" WorkingDirectory="$(MSBuildProjectDirectory)"/>
+    </Target>
+
     <!-- Build UI after deploy -->
     <Target Name="BuildUI" AfterTargets="Build">
         <Message Text="======================================" Importance="high"/>

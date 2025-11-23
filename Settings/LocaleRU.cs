@@ -23,6 +23,7 @@ namespace SystemTimeMod.Settings
                 { _settings.GetOptionTabLocaleID("General"), "Общие" },
                 { _settings.GetOptionTabLocaleID("Time"), "Отображение времени" },
                 { _settings.GetOptionTabLocaleID("Appearance"), "Внешний вид" },
+                { _settings.GetOptionTabLocaleID("About"), "О моде" },
                 
                 { _settings.GetOptionLabelLocaleID(nameof(ModSettings.Language)), "Язык" },
                 { _settings.GetOptionDescLocaleID(nameof(ModSettings.Language)), "Выберите язык интерфейса (пусто = использовать язык игры)" },
@@ -38,6 +39,12 @@ namespace SystemTimeMod.Settings
                 
                 { _settings.GetOptionLabelLocaleID(nameof(ModSettings.WidgetSize)), "Размер виджета" },
                 { _settings.GetOptionDescLocaleID(nameof(ModSettings.WidgetSize)), "Размер виджета времени" },
+
+                { _settings.GetOptionLabelLocaleID(nameof(ModSettings.ModVersion)), "Версия" },
+                { _settings.GetOptionDescLocaleID(nameof(ModSettings.ModVersion)), "Текущая версия мода" },
+                
+                { _settings.GetOptionLabelLocaleID(nameof(ModSettings.BuildNumber)), "Номер сборки" },
+                { _settings.GetOptionDescLocaleID(nameof(ModSettings.BuildNumber)), "Текущий номер сборки (автоинкремент)" },
 
                 { "SystemTimeMod_Size_Small", "Маленький" },
                 { "SystemTimeMod_Size_Medium", "Средний" },

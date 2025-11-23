@@ -14,7 +14,7 @@ const WIDGET_SIZES = {
     dotSize: 10,
     expandedFont: 12,
     borderRadius: 16,
-    dotsMargin: 1
+    dotsMargin: 0
   },
   medium: {
     padding: 16,
@@ -24,7 +24,7 @@ const WIDGET_SIZES = {
     dotSize: 12,
     expandedFont: 14,
     borderRadius: 24,
-    dotsMargin: 1
+    dotsMargin: 0
   },
   large: {
     padding: 20,
@@ -34,7 +34,7 @@ const WIDGET_SIZES = {
     dotSize: 14,
     expandedFont: 16,
     borderRadius: 28,
-    dotsMargin: 2
+    dotsMargin: 1
   },
 } as const
 
@@ -258,25 +258,27 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
               marginRight: '16px',
               display: 'flex',
               alignItems: 'baseline',
-              fontFamily: 'Consolas, monospace',
-              fontWeight: 'bold',
+              fontFamily: 'monospace',
+              fontWeight: '800',
               fontSize: `${widgetSize.timeFont}px`,
             }}>
-              <span>{time.hours}</span>
+              <span style={{ fontWeight: 'bold' }}>{time.hours}</span>
               <span style={{
                 color: 'rgb(125, 211, 252)',
                 marginRight: widgetSize.dotsMargin,
                 marginLeft: widgetSize.dotsMargin,
+                fontWeight: 'bold'
               }}>:</span>
-              <span>{time.minutes}</span>
+              <span style={{ fontWeight: '800' }}>{time.minutes}</span>
               {(settings?.showSeconds ?? true) && (
                 <>
                   <span style={{
                     color: 'rgb(125, 211, 252)',
                     marginRight: widgetSize.dotsMargin,
                     marginLeft: widgetSize.dotsMargin,
+                    fontWeight: '800'
                   }}>:</span>
-                  <span>{time.seconds}</span>
+                  <span style={{ fontWeight: '800' }}>{time.seconds}</span>
                 </>
               )}
             </div>
@@ -333,7 +335,7 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
                   <span style={{ marginLeft: '12px', fontWeight: 500 }}>{date}</span>
                 </div>
 
-                <div style={{
+                {/* <div style={{
                   marginTop: '12px',
                   display: 'flex',
                   alignItems: 'center',
@@ -357,7 +359,7 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
                   }}>
                     {t('widget.live')}
                   </span>
-                </div>
+                </div> */}
               </div>
             </div>
           )}
