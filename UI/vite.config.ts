@@ -15,12 +15,15 @@ export default defineConfig({
   build: {
     outDir: '../dist/ui',
     emptyOutDir: true,
-    rolldownOptions: {
+    cssCodeSplit: false,
+    rollupOptions: {
       output: {
-        entryFileNames: "system-time-mod.js",
-        assetFileNames: "system-time-mod.[ext]"
-      }
-    }
+        entryFileNames: 'system-time-mod.js',
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'style.css') return 'system-time-mod.css'
+          return 'system-time-mod.[ext]'
+        },
+      },
+    },
   },
-  base: 'coui://system-time-mod/'
 })

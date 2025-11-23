@@ -81,19 +81,7 @@ namespace SystemTimeMod.Settings
         public override void Apply()
         {
             base.Apply();
-            
-            // Уведомляем UISystem об изменении настроек
-            try
-            {
-                if (UISystem.Instance != null)
-                {
-                    UISystem.Instance.UpdateSettings();
-                }
-            }
-            catch (System.Exception e)
-            {
-                Mod.log.Error($"Error applying settings: {e.Message}");
-            }
+            // Биндинги обновляются автоматически в UISystem.OnUpdate()
         }
 
         public static DropdownItem<int>[] GetSizeValues()

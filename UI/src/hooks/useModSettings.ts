@@ -11,71 +11,57 @@ export interface ModSettings {
   useCustomPosition: boolean
 }
 
-// Объявляем глобальный интерфейс для данных мода
 declare global {
   interface Window {
-    __SYSTEM_TIME_MOD_DATA__?: {
-      settings: ModSettings
-      gameLanguage: string
-    }
     engine?: {
-      on: (event: string, callback: (data: any) => void) => void
-      off: (event: string, callback: (data: any) => void) => void
-      trigger: (event: string, ...args: any[]) => void
-      call: (method: string, ...args: any[]) => Promise<any>
+      on(event: string, callback: (...args: any[]) => void): void
+      off(event: string, callback: (...args: any[]) => void): void
+      call(method: string, ...args: any[]): Promise<any>
+      trigger(event: string, ...args: any[]): void
     }
   }
 }
 
 /**
- * Хук для получения настроек мода из C#
+ * Хук для получения настроек мода из C# через engine биндинги
  */
-export const useModSettings = (): ModSettings | null => {
-  const [settings, setSettings] = useState<ModSettings | null>(null)
+export const useModSettings = (): ModSettings => {
+  const [settings, setSettings] = useState<ModSettings>({
+    language: '',
+    use24HourFormat: true,
+    showSeconds: true,
+    showDate: true,
+    widgetSize: 1,
+    customPositionX: 0,
+    customPositionY: 0,
+    useCustomPosition: false,
+  })
 
   useEffect(() => {
-    // Проверяем, есть ли данные в глобальном объекте
-    const checkForData = () => {
-      if (window.__SYSTEM_TIME_MOD_DATA__?.settings) {
-        console.log('Settings loaded from global object:', window.__SYSTEM_TIME_MOD_DATA__.settings)
-        setSettings(window.__SYSTEM_TIME_MOD_DATA__.settings)
-        return true
+    const updateSettings = (settingsJson: string) => {
+      try {
+        if (settingsJson && settingsJson !== '{}') {
+          const parsed = JSON.parse(settingsJson)
+          console.log('SystemTimeMod: Settings received:', parsed)
+          setSettings(parsed)
+        }
+      } catch (error) {
+        console.error('SystemTimeMod: Failed to parse settings:', error)
       }
-      return false
     }
 
-    // Пытаемся загрузить сразу
-    if (checkForData()) {
-      // Продолжаем проверять обновления
-    } else {
-      console.log('Waiting for mod data...')
+    if (window.engine?.on) {
+      // Подписываемся на обновления настроек
+      window.engine.on('SystemTimeMod.GetSettings', updateSettings)
+      
+      // Запрашиваем начальные настройки
+      window.engine.call('SystemTimeMod.GetSettings').then(updateSettings).catch(console.error)
     }
-
-    // Постоянно проверяем обновления настроек (каждые 500мс)
-    const interval = setInterval(() => {
-      checkForData()
-    }, 500)
-
-    // Очистка через 5 секунд если данные так и не появились впервые
-    const timeout = setTimeout(() => {
-      if (!settings) {
-        console.warn('Mod data not found, using defaults')
-        setSettings({
-          language: '',
-          use24HourFormat: true,
-          showSeconds: true,
-          showDate: true,
-          widgetSize: 1,
-          customPositionX: 0,
-          customPositionY: 0,
-          useCustomPosition: false,
-        })
-      }
-    }, 5000)
 
     return () => {
-      clearInterval(interval)
-      clearTimeout(timeout)
+      if (window.engine?.off) {
+        window.engine.off('SystemTimeMod.GetSettings', updateSettings)
+      }
     }
   }, [])
 
@@ -83,42 +69,19 @@ export const useModSettings = (): ModSettings | null => {
 }
 
 /**
- * Хук для получения языка игры
+ * Хук для получения языка игры из C# через engine биндинги
  */
 export const useGameLanguage = (): string => {
   const [language, setLanguage] = useState('en-US')
 
   useEffect(() => {
-    // Проверяем данные в глобальном объекте
-    const checkForLanguage = () => {
-      if (window.__SYSTEM_TIME_MOD_DATA__?.gameLanguage) {
-        console.log('Game language loaded:', window.__SYSTEM_TIME_MOD_DATA__.gameLanguage)
-        setLanguage(window.__SYSTEM_TIME_MOD_DATA__.gameLanguage)
-        return true
-      }
-      return false
-    }
-
-    // Пытаемся загрузить сразу
-    if (checkForLanguage()) {
-      return
-    }
-
-    // Если данных нет, ждём их появления
-    const interval = setInterval(() => {
-      if (checkForLanguage()) {
-        clearInterval(interval)
-      }
-    }, 100)
-
-    // Очистка через 5 секунд
-    const timeout = setTimeout(() => {
-      clearInterval(interval)
-    }, 5000)
-
-    return () => {
-      clearInterval(interval)
-      clearTimeout(timeout)
+    if (window.engine?.call) {
+      window.engine.call('SystemTimeMod.GetLanguage')
+        .then((lang: string) => {
+          console.log('SystemTimeMod: Game language:', lang)
+          setLanguage(lang || 'en-US')
+        })
+        .catch(console.error)
     }
   }, [])
 

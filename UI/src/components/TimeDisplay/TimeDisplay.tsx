@@ -1,53 +1,54 @@
 import { useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { Clock, Calendar, Wifi, Move } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ModSettings } from '../../hooks/useModSettings'
+import { cn } from '../../lib/cn'
 
-// Размеры виджета
+// Размеры и классы Tailwind для разных вариантов виджета
 const WIDGET_SIZES = {
   small: {
-    padding: '12px 16px',
-    iconSize: 32,
-    iconWrapperSize: 32,
-    fontSize: '20px',
-    dotSize: 6,
-    expandedFontSize: '12px',
-    borderRadius: '16px',
-    dotsMargin: '2px',
-    timeMargin: '12px'
+    padding: 'px-4 py-3',
+    iconWrapper: 'w-10 h-10',
+    iconSize: 18,
+    timeFont: 'text-[20px]',
+    timeGap: 'gap-0.5',
+    dotsMargin: 'mx-1',
+    dotSize: 'w-2.5 h-2.5',
+    expandedFont: 'text-xs',
+    cardRadius: 'rounded-2xl',
   },
   medium: {
-    padding: '16px 24px',
-    iconSize: 40,
-    iconWrapperSize: 40,
-    fontSize: '28px',
-    dotSize: 8,
-    expandedFontSize: '14px',
-    borderRadius: '16px',
-    dotsMargin: '4px',
-    timeMargin: '16px'
+    padding: 'px-6 py-4',
+    iconWrapper: 'w-12 h-12',
+    iconSize: 22,
+    timeFont: 'text-[28px]',
+    timeGap: 'gap-0.5',
+    dotsMargin: 'mx-1.5',
+    dotSize: 'w-3 h-3',
+    expandedFont: 'text-sm',
+    cardRadius: 'rounded-3xl',
   },
   large: {
-    padding: '20px 32px',
-    iconSize: 48,
-    iconWrapperSize: 48,
-    fontSize: '36px',
-    dotSize: 10,
-    expandedFontSize: '16px',
-    borderRadius: '20px',
-    dotsMargin: '4px',
-    timeMargin: '16px'
+    padding: 'px-8 py-5',
+    iconWrapper: 'w-14 h-14',
+    iconSize: 26,
+    timeFont: 'text-[36px]',
+    timeGap: 'gap-1',
+    dotsMargin: 'mx-2',
+    dotSize: 'w-3.5 h-3.5',
+    expandedFont: 'text-base',
+    cardRadius: 'rounded-[28px]',
   },
 } as const
 
-type WidgetSizeName = 'small' | 'medium' | 'large'
+type WidgetSizeName = keyof typeof WIDGET_SIZES
 type WidgetSizeConfig = typeof WIDGET_SIZES[WidgetSizeName]
 
+const SIZE_ORDER: WidgetSizeName[] = ['small', 'medium', 'large']
+
 function getWidgetSize(sizeIndex: number): WidgetSizeConfig {
-  const sizes: WidgetSizeName[] = ['small', 'medium', 'large']
-  const sizeName = sizes[sizeIndex] || 'medium'
-  return WIDGET_SIZES[sizeName]
+  const sizeName = SIZE_ORDER[sizeIndex]
+  return WIDGET_SIZES[sizeName] ?? WIDGET_SIZES.medium
 }
 
 // Функция для форматирования даты вручную
@@ -79,6 +80,7 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
   const [date, setDate] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
 
@@ -108,8 +110,8 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
       }
 
       // Получаем язык для форматирования даты
-      const locale = settings?.language || 'ru-RU'
-      const dateString = formatDate(now, locale === 'en' ? 'en-US' : 'ru-RU')
+      const locale = settings?.language || 'en-US'
+      const dateString = formatDate(now, locale === 'ru' ? "ru-RU" : 'en-US')
 
       setTime({ hours: hoursStr, minutes, seconds })
       setDate(dateString)
@@ -157,20 +159,16 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
   }, [isDragging, dragStart, position])
 
   // Функция для сохранения позиции в C# настройки
-  const savePosition = (x: number, y: number) => {
+  const savePosition = async (x: number, y: number) => {
     try {
-      // Обновляем данные в глобальном объекте
-      if (window.__SYSTEM_TIME_MOD_DATA__?.settings) {
-        window.__SYSTEM_TIME_MOD_DATA__.settings.customPositionX = x
-        window.__SYSTEM_TIME_MOD_DATA__.settings.customPositionY = y
-        window.__SYSTEM_TIME_MOD_DATA__.settings.useCustomPosition = true
-        console.log('Position saved:', { x, y })
-
-        // TODO: Здесь нужно вызвать C# метод для сохранения настроек
-        // Это потребует дополнительного биндинга
+      // Вызываем C# CallBinding для сохранения позиции
+      const engine = (window as any).engine
+      if (engine && engine.call) {
+        await engine.call('SystemTimeMod.SaveWidgetPosition', JSON.stringify({ x, y }))
+        console.log('SystemTimeMod: Position saved:', { x, y })
       }
     } catch (error) {
-      console.error('Error saving position:', error)
+      console.error('SystemTimeMod: Error saving position:', error)
     }
   }
 
@@ -178,335 +176,116 @@ export const TimeDisplay = ({ settings }: TimeDisplayProps) => {
   const widgetSize = getWidgetSize(settings?.widgetSize ?? 1)
 
   return (
-    <>
-      <style>{`
-        @keyframes ping {
-          75%, 100% {
-            transform: scale(2);
-            opacity: 0;
-          }
-        }
-      `}</style>
-
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{
-          opacity: 1,
-          x: position.x,
-          y: position.y
-        }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        onMouseEnter={() => !isDragging && setIsExpanded(true)}
-        onMouseLeave={() => setIsExpanded(false)}
-        style={{
-          position: 'fixed',
-          top: '16px',
-          right: '16px',
-          zIndex: 999999,
-          cursor: isDragging ? 'grabbing' : 'default',
-          userSelect: 'none',
-        }}
-      >
-        <motion.div
-          animate={{ scale: isExpanded && !isDragging ? 1.02 : 1 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-          style={{
-            position: 'relative',
-            backdropFilter: 'blur(24px)',
-            background: 'linear-gradient(135deg, rgba(26, 31, 46, 0.8) 0%, rgba(26, 31, 46, 0.6) 100%)',
-            border: isDragging ? '1px solid rgba(74, 158, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: widgetSize.borderRadius,
-            boxShadow: isDragging ? '0 12px 48px rgba(0, 0, 0, 0.6)' : '0 8px 32px rgba(0, 0, 0, 0.4)',
-            overflow: 'hidden',
-            transition: 'all 0.3s ease',
-          }}
+    <div
+      className="pointer-events-none"
+      onMouseEnter={() => !isDragging && setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+      style={{
+        transform: `translate(${position.x}px, ${position.y}px)`,
+        position: 'fixed',
+        top: '16px',
+        right: '16px',
+        zIndex: 999999,
+      }}
+    >
+      <div className="pointer-events-auto">
+        <div
+          className={cn(
+            'relative flex transform-gpu flex-col overflow-hidden border bg-gradient-to-br from-slate-900/80 to-slate-900/60 text-white shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 ease-out backdrop-blur-3xl',
+            widgetSize.cardRadius,
+            isExpanded && !isDragging && 'scale-[1.01]',
+            isDragging
+              ? 'border-cyan-400/60 shadow-[0_12px_48px_rgba(0,0,0,0.6)]'
+              : 'border-white/20'
+          )}
         >
-          {/* Светящаяся линия сверху */}
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '1px',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(74, 158, 255, 0.5) 50%, transparent 100%)',
-          }} />
+          <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-400/60 to-transparent" />
 
-          {/* Иконка перетаскивания */}
-          <AnimatePresence>
-            {isExpanded && !isDragging && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                onMouseDown={handleMouseDown}
-                style={{
-                  position: 'absolute',
-                  top: '8px',
-                  left: '8px',
-                  width: '24px',
-                  height: '24px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'rgba(255, 255, 255, 0.4)',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  borderRadius: '6px',
-                  zIndex: 10,
-                  transition: 'all 0.2s',
-                  cursor: 'grab',
-                }}
-              >
-                <Move size={14} stroke="rgba(255, 255, 255, 0.4)" />
-              </motion.div>
+          <button
+            type="button"
+            onMouseDown={handleMouseDown}
+            className={cn(
+              'absolute left-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-white/5 text-white/60 transition-opacity duration-200 cursor-grab',
+              isExpanded && !isDragging ? 'opacity-100' : 'pointer-events-none opacity-0'
             )}
-          </AnimatePresence>
+          >
+            <Move size={14} stroke="currentColor" />
+          </button>
 
-          <div style={{ padding: widgetSize.padding }}>
-            {/* Заголовок с временем */}
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              {/* Иконка часов с вращением */}
-              <motion.div
-                animate={{ rotate: isExpanded ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: `${widgetSize.iconWrapperSize}px`,
-                  height: `${widgetSize.iconWrapperSize}px`,
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, rgba(74, 158, 255, 0.3) 0%, rgba(74, 158, 255, 0.1) 100%)',
-                  border: '1px solid rgba(74, 158, 255, 0.3)',
-                  color: '#6BB6FF',
-                  flexShrink: 0,
-                }}
+          <div className={cn('flex flex-col', widgetSize.padding)}>
+            <div className="flex items-center">
+              <div
+                className={cn(
+                  'flex items-center justify-center rounded-full border border-sky-400/30 bg-gradient-to-b from-sky-500/20 to-transparent text-sky-300 transition-transform duration-300',
+                  widgetSize.iconWrapper,
+                  isExpanded && 'rotate-180'
+                )}
               >
-                <Clock size={widgetSize.iconSize * 0.5} stroke="#6BB6FF" />
-              </motion.div>
-
-              {/* Цифры времени */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginLeft: widgetSize.timeMargin,
-                marginRight: widgetSize.timeMargin,
-              }}>
-                <span style={{
-                  color: 'white',
-                  fontFamily: "'Consolas', 'Monaco', monospace",
-                  fontSize: widgetSize.fontSize,
-                  fontWeight: 'bold',
-                  lineHeight: 1,
-                }}>
-                  {time.hours}
-                </span>
-                <span style={{
-                  color: 'rgba(74, 158, 255, 0.6)',
-                  fontSize: widgetSize.fontSize,
-                  fontWeight: 'bold',
-                  lineHeight: 1,
-                  marginLeft: widgetSize.dotsMargin,
-                  marginRight: widgetSize.dotsMargin,
-                }}>
-                  :
-                </span>
-                <span style={{
-                  color: 'white',
-                  fontFamily: "'Consolas', 'Monaco', monospace",
-                  fontSize: widgetSize.fontSize,
-                  fontWeight: 'bold',
-                  lineHeight: 1,
-                }}>
-                  {time.minutes}
-                </span>
-                {(settings?.showSeconds ?? true) && (
-                  <span style={{
-                    color: 'rgba(74, 158, 255, 0.6)',
-                    fontSize: widgetSize.fontSize,
-                    fontWeight: 'bold',
-                    lineHeight: 1,
-                    marginLeft: widgetSize.dotsMargin,
-                    marginRight: widgetSize.dotsMargin,
-                  }}>
-                    :
-                  </span>
-                )}
-                {(settings?.showSeconds ?? true) && (
-                  <span style={{
-                    color: 'white',
-                    fontFamily: "'Consolas', 'Monaco', monospace",
-                    fontSize: widgetSize.fontSize,
-                    fontWeight: 'bold',
-                    lineHeight: 1,
-                  }}>
-                    {time.seconds}
-                  </span>
-                )}
+                <Clock size={widgetSize.iconSize} stroke="#6BB6FF" />
               </div>
 
-              {/* Индикатор онлайн */}
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                style={{ marginLeft: '4px' }}
-              >
-                <div style={{
-                  position: 'relative',
-                  width: `${widgetSize.dotSize}px`,
-                  height: `${widgetSize.dotSize}px`,
-                }}>
-                  <div style={{
-                    width: `${widgetSize.dotSize}px`,
-                    height: `${widgetSize.dotSize}px`,
-                    borderRadius: '50%',
-                    backgroundColor: '#4ade80',
-                  }} />
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: `${widgetSize.dotSize}px`,
-                    height: `${widgetSize.dotSize}px`,
-                    borderRadius: '50%',
-                    backgroundColor: '#4ade80',
-                    animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
-                  }} />
-                </div>
-              </motion.div>
+              <div className={cn('ml-4 mr-4 flex items-baseline font-[\'Consolas\'] font-bold text-white', widgetSize.timeGap)}>
+                <span className={widgetSize.timeFont}>{time.hours}</span>
+                <span className={cn('text-sky-300', widgetSize.timeFont, widgetSize.dotsMargin)}>:</span>
+                <span className={widgetSize.timeFont}>{time.minutes}</span>
+                {(settings?.showSeconds ?? true) && (
+                  <span className={cn('text-sky-300', widgetSize.timeFont, widgetSize.dotsMargin)}>:</span>
+                )}
+                {(settings?.showSeconds ?? true) && <span className={widgetSize.timeFont}>{time.seconds}</span>}
+              </div>
+
+              <div className="relative ml-2">
+                <div className={cn('rounded-full bg-emerald-400', widgetSize.dotSize)} />
+                <div className={cn('absolute inset-0 rounded-full bg-emerald-400 opacity-60 animate-ping', widgetSize.dotSize)} />
+              </div>
             </div>
 
-            {/* Расширенная информация */}
             {(settings?.showDate ?? true) && (
-              <motion.div
-                initial={false}
-                animate={{
-                  height: isExpanded && !isDragging ? 'auto' : 0,
-                  opacity: isExpanded && !isDragging ? 1 : 0
-                }}
-                transition={{
-                  height: { duration: 0.3, ease: 'easeInOut' },
-                  opacity: { duration: 0.2 }
-                }}
-                style={{ overflow: 'hidden' }}
+              <div
+                className={cn(
+                  'overflow-hidden transition-all duration-300 ease-out',
+                  isExpanded && !isDragging ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'
+                )}
               >
-                <div style={{
-                  marginTop: '16px',
-                  paddingTop: '16px',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                }}>
-                  {/* Дата */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    fontSize: widgetSize.expandedFontSize,
-                  }}>
-                    <div style={{
-                      color: '#6BB6FF',
-                      flexShrink: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}>
+                <div className="mt-4 border-t border-white/10 pt-4">
+                  <div className={cn('flex items-center text-white/70', widgetSize.expandedFont)}>
+                    <span className="text-sky-300">
                       <Calendar size={16} stroke="#6BB6FF" />
-                    </div>
-                    <span style={{
-                      fontWeight: 500,
-                      marginLeft: '12px',
-                    }}>
-                      {date}
                     </span>
+                    <span className="ml-3 font-medium">{date}</span>
                   </div>
 
-                  {/* Доп. информация */}
-                  <div style={{
-                    marginTop: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    fontSize: `calc(${widgetSize.expandedFontSize} * 0.85)`,
-                  }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      color: 'rgba(255, 255, 255, 0.5)',
-                    }}>
-                      <div style={{
-                        color: '#6BB6FF',
-                        flexShrink: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}>
+                  <div className="mt-3 flex items-center justify-between text-white/60 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sky-300">
                         <Wifi size={12} stroke="#6BB6FF" />
-                      </div>
-                      <span style={{ marginLeft: '8px' }}>
-                        {t('widget.systemTime')}
                       </span>
+                      <span>{t('widget.systemTime')}</span>
                     </div>
-                    <div style={{
-                      padding: '4px 8px',
-                      borderRadius: '6px',
-                      backgroundColor: 'rgba(74, 158, 255, 0.2)',
-                      color: '#4A9EFF',
-                      fontSize: '11px',
-                      fontWeight: 600,
-                    }}>
+                    <span className="rounded-md bg-sky-400/20 px-2 py-1 text-[11px] font-semibold text-sky-300">
                       {t('widget.live')}
-                    </div>
+                    </span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
 
-          {/* Декоративные элементы */}
-          <div style={{
-            position: 'absolute',
-            bottom: '-8px',
-            right: '-8px',
-            width: '96px',
-            height: '96px',
-            borderRadius: '50%',
-            filter: 'blur(32px)',
-            backgroundColor: 'rgba(74, 158, 255, 0.05)',
-            pointerEvents: 'none',
-          }} />
-          <div style={{
-            position: 'absolute',
-            top: '-8px',
-            left: '-8px',
-            width: '64px',
-            height: '64px',
-            borderRadius: '50%',
-            filter: 'blur(32px)',
-            backgroundColor: 'rgba(168, 85, 247, 0.05)',
-            pointerEvents: 'none',
-          }} />
-        </motion.div>
+          <div className="pointer-events-none">
+            <span className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-sky-400/10 blur-3xl" />
+            <span className="absolute -left-4 -top-4 h-16 w-16 rounded-full bg-purple-400/10 blur-3xl" />
+          </div>
 
-        {/* Подсказка */}
-        <AnimatePresence>
-          {isExpanded && !isDragging && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                position: 'absolute',
-                bottom: '-32px',
-                right: 0,
-                fontSize: '12px',
-                color: 'rgba(255, 255, 255, 0.4)',
-                fontWeight: 500,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {t('widget.version', { version: '1.0' })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </>
+          <div
+            className={cn(
+              'absolute -bottom-8 right-0 text-xs font-medium text-white/40 transition-opacity duration-200',
+              isExpanded && !isDragging ? 'opacity-100' : 'opacity-0'
+            )}
+          >
+            {t('widget.version', { version: '1.0' })}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
